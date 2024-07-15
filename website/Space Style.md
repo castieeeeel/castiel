@@ -68,3 +68,13 @@ button:hover {
   /* box-shadow: #121212 0 0 0 3px, transparent 0 0 0 0; */
 }
 ```
+
+Styles can also be set based on a page's [[Objects#Tags|tags]]
+
+```space-style
+.cm-content[tags*="MyTag"] {
+  .sb-h1 {
+    color: green; /* Make level 1 headings green on pages tagged with MyTag */
+  }
+}
+```

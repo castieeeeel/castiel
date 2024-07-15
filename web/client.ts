@@ -1124,6 +1124,10 @@ export class Client {
         // Nothing in the store, revert to default
         enrichedMeta = doc.meta;
       }
+      if (enrichedMeta.itags) {
+        const pageTags = enrichedMeta.itags.join(" ");
+        editorView.contentDOM.setAttribute("tags", pageTags);
+      }
       this.ui.viewDispatch({
         type: "update-current-page-meta",
         meta: enrichedMeta,
