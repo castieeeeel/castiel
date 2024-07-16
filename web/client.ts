@@ -1124,10 +1124,8 @@ export class Client {
         // Nothing in the store, revert to default
         enrichedMeta = doc.meta;
       }
-      if (enrichedMeta.itags) {
-        const pageTags = enrichedMeta.itags.join(" ");
-        editorView.contentDOM.setAttribute("tags", pageTags);
-      }
+      this.pageMetaToAttributes(enrichedMeta);
+      
       this.ui.viewDispatch({
         type: "update-current-page-meta",
         meta: enrichedMeta,
@@ -1156,6 +1154,25 @@ export class Client {
       this.eventHook.dispatchEvent("editor:pageReloaded", pageName).catch(
         console.error,
       );
+    }
+  }
+
+  pageMetaToAttributes(meta: any) {
+    const bodyEl = this.parent.parentElement;
+    if (!bodyEl) return;
+    for (const p in meta) {
+      if (Array.isArray(meta[p])) {
+        bodyEl.setAttribute(`data-${p}`, meta[p].join(" "));
+      } else if (typeof meta[p] === "object") {
+        // flatten nested objects
+        for (const q in meta[p]) {
+          meta[p][`${p}-${q}`] = meta[p][q];
+          delete meta[p][q];
+        }
+        this.pageMetaToAttributes(meta[p]);
+      } else {
+        bodyEl.setAttribute(`data-${p}`, meta[p]);
+      }
     }
   }
 

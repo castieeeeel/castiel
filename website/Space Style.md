@@ -69,12 +69,17 @@ button:hover {
 }
 ```
 
-Styles can also be set based on a page's [[Objects#Tags|tags]]
+Styles can also be set based on a page properties such as [[Objects#Tags|tags]] or [[Attributes]]
 
 ```space-style
-.cm-content[tags*="MyTag"] {
+body[data-tags~="MyTag"] {
   .sb-h1 {
     color: green; /* Make level 1 headings green on pages tagged with MyTag */
+  }
+}
+body[data-isPink="true"] {
+  #sb-top {
+    background-color: pink; /* Make the top bar pink for pages with the custom attribute isPink */
   }
 }
 ```
