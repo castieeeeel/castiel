@@ -18,6 +18,7 @@ export type BuiltinSettings = {
   shortcuts?: Shortcut[];
   hideSyncButton?: boolean;
   hideEditButton?: boolean;
+  useSmartQuotes?: boolean;
   maximumAttachmentSize?: number;
   defaultLinkStyle?: string;
   actionButtons: ActionButton[];
@@ -61,7 +62,7 @@ export type AppViewState = {
   };
 
   // Page navigator mode
-  pageNavigatorMode: "page" | "meta";
+  pageNavigatorMode: "page" | "meta" | "all";
 
   // Filter box
   showFilterBox: boolean;
@@ -127,7 +128,7 @@ export type Action =
   | { type: "update-current-page-meta"; meta: PageMeta }
   | { type: "update-page-list"; allPages: PageMeta[] }
   | { type: "settings-loaded"; settings: BuiltinSettings }
-  | { type: "start-navigate"; mode: "page" | "meta" }
+  | { type: "start-navigate"; mode: "page" | "meta" | "all" }
   | { type: "stop-navigate" }
   | {
     type: "update-commands";
