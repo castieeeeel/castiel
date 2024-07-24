@@ -105,6 +105,25 @@ export function createEditorState(
             client.clientSystem.slashCommandHook,
           ),
         ],
+        addToOptions: [{
+          render: (
+            completion: any,
+            _state: EditorState,
+            _view: EditorView,
+          ) => {
+            if (completion.metaData) {
+              const pageDataNode = document.createElement("span");
+              pageDataNode.classList.add("sb-completion-metadata");
+              for (const m in completion.metaData) {
+                pageDataNode.setAttribute(m, completion.metaData[m]);
+              }
+              return pageDataNode;
+            } else {
+              return null;
+            }
+          },
+          position: 49,
+        }],
       }),
       inlineImagesPlugin(client),
       codeCopyPlugin(client),

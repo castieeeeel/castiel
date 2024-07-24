@@ -5,6 +5,7 @@ import { Client } from "../client.ts";
 import { decoratorStateField, isCursorInRange, LinkWidget } from "./util.ts";
 import { resolvePath } from "$sb/lib/resolve.ts";
 import { encodePageRef, parsePageRef } from "$sb/lib/page_ref.ts";
+import { metaToAttributes } from "./util.ts";
 
 /**
  * Plugin to hide path prefix when the cursor is not inside.
@@ -74,8 +75,10 @@ export function cleanWikiLinkPlugin(client: Client) {
           // Hide the ^ prefix
           cleanLinkText = cleanLinkText.slice(1);
         }
-        const linkText = alias ||
-          ((pageMeta?.pageDecoration?.prefix ?? "") + cleanLinkText);
+        const linkText = alias || cleanLinkText;
+
+        const attributes = metaToAttributes(pageMeta);
+        console.log(attributes);
 
         // And replace it with a widget
         widgets.push(
@@ -91,6 +94,7 @@ export function cleanWikiLinkPlugin(client: Client) {
                   ? "sb-wiki-link-page"
                   : "sb-wiki-link-page-missing",
                 from,
+                attributes,
                 callback: (e) => {
                   if (e.altKey) {
                     // Move cursor into the link

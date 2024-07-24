@@ -4,12 +4,15 @@
 import { EditorState, StateField, Transaction } from "@codemirror/state";
 import { DecorationSet } from "@codemirror/view";
 import { Decoration, EditorView, WidgetType } from "@codemirror/view";
+import { htmlEscape } from "../../plugs/markdown/html_render.ts";
+
 type LinkOptions = {
   text: string;
   href?: string;
   title: string;
   cssClass: string;
   from: number;
+  attributes?: { [key: string]: string };
   callback: (e: MouseEvent) => void;
 };
 export class LinkWidget extends WidgetType {
@@ -22,6 +25,10 @@ export class LinkWidget extends WidgetType {
     const anchor = document.createElement("a");
     anchor.className = this.options.cssClass;
     anchor.textContent = this.options.text;
+
+    for (const a in this.options.attributes) {
+      anchor.setAttribute(a, this.options.attributes[a]);
+    }
 
     // Mouse handling
     anchor.addEventListener("click", (e) => {
@@ -168,3 +175,31 @@ export function isCursorInRange(state: EditorState, range: [number, number]) {
  * Decoration to simply hide anything.
  */
 export const invisibleDecoration = Decoration.replace({});
+
+/**
+ * Flatten and sanitize metadata objects for injecting into HTML
+ */
+export function metaToAttributes(meta: any): { [key: string]: string } {
+  let attributes: any = {};
+
+  for (let m in meta) {
+    // Skip non-useful attributes
+    if (["created", "lastmodified", "perm"].includes(m.toLowerCase())) {
+      continue;
+    }
+    m = m.replaceAll(/[\s\0"'>\/=]/g, "");
+    if (Array.isArray(meta[m])) {
+      const values = htmlEscape(meta[m].join(" "));
+      attributes[`data-${m}`] = values;
+    } else if ((typeof meta[m]) === "object") {
+      const nestedMeta: any = {};
+      for (const o in meta[m]) {
+        nestedMeta[`${m}-${o}`] = meta[m][o];
+      }
+      attributes = { ...attributes, ...metaToAttributes(nestedMeta) };
+    } else {
+      attributes[`data-${m}`] = htmlEscape(`${meta[m]}`);
+    }
+  }
+  return attributes;
+}

@@ -192,7 +192,7 @@ export function FilterList({
               key={"" + idx}
               ref={selectedOption === idx ? selectedElementRef : undefined}
               className={selectedOption === idx
-                ? "sb-selected-option"
+                ? "sb-option sb-selected-option"
                 : "sb-option"}
               onMouseMove={(e) => {
                 if (selectedOption !== idx) {
@@ -203,6 +203,7 @@ export function FilterList({
                 e.stopPropagation();
                 onSelect(option);
               }}
+              {...option.attributes}
             >
               {Icon && (
                 <span className="sb-icon">

@@ -18,9 +18,12 @@ import { AppViewState, BuiltinSettings } from "../type/web.ts";
 
 import type {
   AppEvent,
+  CodeWidgetButton,
   CompleteEvent,
+  FileMeta,
+  PageMeta,
   SlashCompletions,
-} from "../plug-api/types.ts";
+} from "$sb/types.ts";
 import { StyleObject } from "../plugs/index/style.ts";
 import { throttle } from "$lib/async.ts";
 import { PlugSpacePrimitives } from "$common/spaces/plug_space_primitives.ts";
@@ -36,13 +39,12 @@ import { SyncStatus } from "$common/spaces/sync.ts";
 import { HttpSpacePrimitives } from "$common/spaces/http_space_primitives.ts";
 import { FallbackSpacePrimitives } from "$common/spaces/fallback_space_primitives.ts";
 import { FilteredSpacePrimitives } from "$common/spaces/filtered_space_primitives.ts";
-import { encodePageRef, validatePageName } from "$sb/lib/page_ref.ts";
+import { encodePageRef, PageRef, validatePageName } from "$sb/lib/page_ref.ts";
 import { ClientSystem } from "./client_system.ts";
 import { createEditorState } from "./editor_state.ts";
 import { MainUI } from "./editor_ui.tsx";
 import { cleanPageRef } from "$sb/lib/resolve.ts";
 import { SpacePrimitives } from "$common/spaces/space_primitives.ts";
-import { CodeWidgetButton, FileMeta, PageMeta } from "../plug-api/types.ts";
 import { DataStore } from "$lib/data/datastore.ts";
 import { IndexedDBKvPrimitives } from "$lib/data/indexeddb_kv_primitives.ts";
 import { DataStoreMQ } from "$lib/data/mq.datastore.ts";
@@ -53,7 +55,6 @@ import {
 
 import { ensureSpaceIndex } from "$common/space_index.ts";
 import { renderTheTemplate } from "$common/syscalls/template.ts";
-import { PageRef } from "../plug-api/lib/page_ref.ts";
 import { ReadOnlySpacePrimitives } from "$common/spaces/ro_space_primitives.ts";
 import { KvPrimitives } from "$lib/data/kv_primitives.ts";
 import { builtinFunctions } from "$lib/builtin_query_functions.ts";
@@ -62,6 +63,7 @@ import { LimitedMap } from "$lib/limited_map.ts";
 import { plugPrefix } from "$common/spaces/constants.ts";
 import { lezerToParseTree } from "$common/markdown_parser/parse_tree.ts";
 import { findNodeMatching } from "$sb/lib/tree.ts";
+import { metaToAttributes } from "./cm_plugins/util.ts";
 
 const frontMatterRegex = /^---\n(([^\n]|\n)*?)---\n/;
 
@@ -1124,6 +1126,18 @@ export class Client {
         // Nothing in the store, revert to default
         enrichedMeta = doc.meta;
       }
+
+      const bodyEl = this.parent.parentElement;
+      if (bodyEl) {
+        while (bodyEl.attributes.length > 0) {
+          bodyEl.removeAttribute(bodyEl.attributes[0].name);
+        }
+        const attributes = metaToAttributes(enrichedMeta);
+        for (const a in attributes) {
+          bodyEl.setAttribute(a, attributes[a]);
+        }
+      }
+
       this.ui.viewDispatch({
         type: "update-current-page-meta",
         meta: enrichedMeta,
