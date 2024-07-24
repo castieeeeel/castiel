@@ -9,6 +9,7 @@ import { listFilesCached } from "../federation/federation.ts";
 import { queryObjects } from "../index/plug_api.ts";
 import { folderName } from "$sb/lib/resolve.ts";
 import { decoration } from "$sb/syscalls.ts";
+import { metaToAttributes } from "../../web/cm_plugins/util.ts";
 
 // A meta page is a page tagged with either #template or #meta
 const isMetaPageFilter: QueryExpression = ["or", ["=", ["attr", "tags"], [
@@ -121,6 +122,7 @@ export async function pageComplete(completeEvent: CompleteEvent) {
               : `${pageMeta.name}|${pageMeta.displayName}`,
             detail: `displayName for: ${pageMeta.name}`,
             type: "page",
+            metaData: metaToAttributes(pageMeta),
           });
         }
         if (Array.isArray(pageMeta.aliases)) {
@@ -135,6 +137,7 @@ export async function pageComplete(completeEvent: CompleteEvent) {
                 : `${pageMeta.name}|${alias}`,
               detail: `alias to: ${pageMeta.name}`,
               type: "page",
+              metaData: metaToAttributes(pageMeta),
             });
           }
         }
@@ -144,6 +147,7 @@ export async function pageComplete(completeEvent: CompleteEvent) {
           displayLabel: decoratedName,
           boost: new Date(pageMeta.lastModified).getTime(),
           type: "page",
+          metaData: metaToAttributes(pageMeta),
         });
       } else {
         // A markdown link []()
@@ -162,6 +166,7 @@ export async function pageComplete(completeEvent: CompleteEvent) {
           boost: boost,
           apply: labelText.includes(" ") ? "<" + labelText + ">" : labelText,
           type: "page",
+          metaData: metaToAttributes(pageMeta),
         });
       }
       return completions;

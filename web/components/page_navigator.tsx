@@ -1,8 +1,9 @@
 import { FilterList } from "./filter.tsx";
 import { FilterOption } from "$lib/web.ts";
 import { CompletionContext, CompletionResult } from "@codemirror/autocomplete";
-import { PageMeta } from "../../plug-api/types.ts";
+import { PageMeta } from "$sb/types.ts";
 import { tagRegex as mdTagRegex } from "$common/markdown_parser/parser.ts";
+import { metaToAttributes } from "../cm_plugins/util.ts";
 
 const tagRegex = new RegExp(mdTagRegex.source, "g");
 
@@ -43,6 +44,8 @@ export function PageNavigator({
       orderId = Infinity;
     }
 
+    const attributes = metaToAttributes(pageMeta);
+
     if (mode === "page") {
       // Special behavior for regular pages
       let description: string | undefined;
@@ -62,9 +65,10 @@ export function PageNavigator({
       }
       options.push({
         ...pageMeta,
-        name: (pageMeta.pageDecoration?.prefix ?? "") + pageMeta.name,
+        name: pageMeta.name,
         description,
         orderId: orderId,
+        attributes,
       });
     } else if (mode === "meta") {
       // Special behavior for #template and #meta pages
